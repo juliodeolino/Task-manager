@@ -9,6 +9,8 @@ package com.mycompany.taskmanager.model;
  * @author arsen
  */
 public abstract class BaseTarefa {
+    
+    protected int id;
     protected String titulo;
     protected String descricao;
     protected boolean concluida;
@@ -17,17 +19,30 @@ public abstract class BaseTarefa {
     super();
     }
     
-    public BaseTarefa(String titulo, String descricao, boolean concluida){
+    public BaseTarefa(int id, String titulo, String descricao, boolean concluida){
+        this.id = id;
         this.titulo = titulo;
         this.descricao = descricao;
         this.concluida = concluida;
     }
     
-        public BaseTarefa(String titulo, String descricao){
+        public BaseTarefa(int id, String titulo, String descricao){
+        this.id = id;
         this.titulo = titulo;
         this.descricao = descricao;
         this.concluida = false;
     }
+    
+
+    public BaseTarefa(String titulo, String descricao) {
+        this.titulo = titulo;
+        this.descricao = descricao;
+        this.concluida = false;
+    }
+    
+
+    
+
         
     public abstract void exibirDetalhes();
     
@@ -53,6 +68,14 @@ public abstract class BaseTarefa {
     
     public void setConcluida (boolean concluida){
         this.concluida = concluida;
+    }
+    
+    public int getId() {
+    return id;
+    }
+
+    public void setId(int id) {
+    this.id = id;
     }
     
     @Override

@@ -12,9 +12,22 @@ import com.mycompany.taskmanager.model.BaseTarefa;
 public class TarefaPrioritaria extends Tarefa {
     private String prioridade;
     
+    
     public TarefaPrioritaria(String titulo, String descricao, String prioridade){
         super(titulo, descricao);
         this.prioridade = prioridade;     
+    }
+    public TarefaPrioritaria(int id, String titulo, String descricao, String prioridade){
+        super(id, titulo, descricao);
+        this.prioridade = prioridade;     
+    }
+    
+    public String getPrioridade() {
+        return prioridade;
+    }
+
+    public void setPrioridade(String prioridade) {
+        this.prioridade = prioridade;
     }
     
     
@@ -26,5 +39,5 @@ public class TarefaPrioritaria extends Tarefa {
     @Override
     public String toString(){
          return super.toString() + "[Prioridade: " + this.prioridade + "]";
-    }  
+    } 
 }
