@@ -9,16 +9,36 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author julio
- */
 public class TarefaDAO {
+    
+    private Connection conexaoInjetada = null;
+
+    public TarefaDAO() {
+    }
+    
+    public TarefaDAO(Connection conexao) {
+        this.conexaoInjetada = conexao;
+    }
+        
+    private Connection obterConexao() throws SQLException {
+        if(conexaoInjetada != null && !conexaoInjetada.isClosed()){
+            return conexaoInjetada;
+        }
+        return Conexao.conectar();
+    }
+    
+    private void fecharConexaoSenaoForDeTeste(Connection conn) throws SQLException{
+        if(conexaoInjetada == null && conn != null && !conn.isClosed()){
+            conn.close();
+        }
+    }
     
     public void inserir(Tarefa tarefa) throws SQLException {
         String sql = "INSERT INTO tarefas(titulo, descricao, concluida) VALUES (?, ?, ?)";
         
-        try (Connection conn = Conexao.conectar()) {
-            conn.setAutoCommit(false);
+        Connection conn = obterConexao(); 
+        try {
+            conn.setAutoCommit(false);  
             
             try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 stmt.setString(1, tarefa.getTitulo());
@@ -37,6 +57,8 @@ public class TarefaDAO {
                 conn.rollback();
                 throw e;
             }
+        } finally {
+            fecharConexaoSenaoForDeTeste(conn);
         }
     }
     
@@ -44,20 +66,24 @@ public class TarefaDAO {
         List<Tarefa> tarefas = new ArrayList<>();
         String sql = "SELECT id, titulo, descricao, concluida FROM tarefas";
         
-        try (Connection conn = Conexao.conectar();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-                
-            while (rs.next()) {
-                int id = rs.getInt("id");
-                String titulo = rs.getString("titulo");
-                String descricao = rs.getString("descricao");
-                boolean concluida = rs.getBoolean("concluida"); 
-                
-
-                Tarefa tarefa = new Tarefa(id, titulo, descricao, concluida);
-                tarefas.add(tarefa);
+        // AQUI ESTAVA O ERRO! Ajustado para não usar try-with-resources na conexão
+        Connection conn = obterConexao();
+        try {
+            try (PreparedStatement stmt = conn.prepareStatement(sql);
+                 ResultSet rs = stmt.executeQuery()) {
+                    
+                while (rs.next()) {
+                    int id = rs.getInt("id");
+                    String titulo = rs.getString("titulo");
+                    String descricao = rs.getString("descricao");
+                    boolean concluida = rs.getBoolean("concluida"); 
+                    
+                    Tarefa tarefa = new Tarefa(id, titulo, descricao, concluida);
+                    tarefas.add(tarefa);
+                }
             }
+        } finally {
+            fecharConexaoSenaoForDeTeste(conn);
         }
         return tarefas;
     }
@@ -65,7 +91,9 @@ public class TarefaDAO {
     public void atualizar(Tarefa tarefa) throws SQLException {
         String sql = "UPDATE tarefas SET titulo = ?, descricao = ?, concluida = ? WHERE id = ?";
         
-        try (Connection conn = Conexao.conectar()) { 
+        // AQUI TAMBÉM!
+        Connection conn = obterConexao();
+        try { 
             conn.setAutoCommit(false);
             
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -80,13 +108,17 @@ public class TarefaDAO {
                 conn.rollback(); 
                 throw e;
             }
+        } finally {
+            fecharConexaoSenaoForDeTeste(conn);
         }
     }
     
     public void excluir(int id) throws SQLException {
         String sql = "DELETE FROM tarefas WHERE id = ?";
         
-        try (Connection conn = Conexao.conectar()){
+        // AQUI TAMBÉM!
+        Connection conn = obterConexao();
+        try {
             conn.setAutoCommit(false);
             
             try(PreparedStatement stmt = conn.prepareStatement(sql)){
@@ -97,6 +129,8 @@ public class TarefaDAO {
                 conn.rollback();
                 throw e;
             }
+        } finally {
+            fecharConexaoSenaoForDeTeste(conn);
         }
     }
 }
