@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.taskmanager.model;
 
 import com.mycompany.taskmanager.db.TarefaDAO;
@@ -17,10 +13,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- *
- * @author julio
- */
 public class TarefaDAOTest {
     
     private TarefaDAO dao;
@@ -32,22 +24,22 @@ public class TarefaDAOTest {
         
         try (Statement stmt = conexaoTeste.createStatement()){
             String sql = """
-                        CREATE TABLE IF NOT EXISTS tarefas (
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            titulo TEXT NOT NULL,
-                            descricao TEXT,
-                            concluida INTEGER DEFAULT 0
-                        );
-                        """;
-                        stmt.execute(sql);
+                         CREATE TABLE IF NOT EXISTS tarefas (
+                             id INTEGER PRIMARY KEY AUTOINCREMENT,
+                             titulo TEXT NOT NULL,
+                             descricao TEXT,
+                             concluida INTEGER DEFAULT 0
+                         );
+                         """;
+            stmt.execute(sql);
         }
         dao = new TarefaDAO(conexaoTeste);
     }
     
     @AfterEach
-    public void tearDown() throws SQLException {
+    public void tearDown() throws SQLException { // Adicionado throws SQLException
         if(conexaoTeste != null && !conexaoTeste.isClosed()){
-            conexaoTeste.close();
+            conexaoTeste.close(); // Corrigido
         }
     }
     
@@ -65,5 +57,4 @@ public class TarefaDAOTest {
         
         assertTrue(tarefasSalvas.get(0).getId() > 0, "O ID da tarefa deve ter sido gerado pelo banco");
     }
-    
 }
